@@ -331,6 +331,8 @@ public struct CanvasHUDView: View {
                     .buttonStyle(.borderedProminent)
                     .tint(.purple)
                     .controlSize(.small)
+
+                    AnimationExportButton(viewModel: viewModel)
                 }
                 .fixedSize()
                 .padding(.horizontal, 10)

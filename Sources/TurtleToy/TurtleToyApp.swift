@@ -654,6 +654,10 @@ public struct TurtleToyApp: App {
             print("Rendered \(frameCount) crawl frames for \(preset.id) -> \(outDir.path)")
             exit(0)
         }
+
+        // Support `--export-animation <presetId> <outputPath> [--frames N] [--fps N] [--size N|WxH] [--mode crawl|time]`
+        // (MP4 or GIF by file extension; see AnimationExporter.swift). Exits when the export has finished.
+        AnimationExportCLI.runIfRequested(arguments: args)
     }
 
     public var body: some Scene {
