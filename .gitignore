@@ -1,0 +1,14 @@
+# Swift Package Manager & Xcode build artifacts
+.build/
+.swiftpm/
+DerivedData/
+*.xcodeproj
+*.xcworkspace
+xcuserdata/
+
+# Packaged local app bundle (can be built with `make app` or `swift build`)
+TurtleToy.app/
+TurtleFX.app/
+
+# macOS system files
+.DS_Store
