@@ -1,6 +1,6 @@
 # 🐢✨ TurtleToy
 
-**A whimsical, native macOS creative-coding "toy IDE" for turtle graphics — powered by Swift 6 and a 120Hz Metal 2D Signed Distance Field (SDF) + HDR Bloom engine.**
+**A macOS creative-coding toy for turtle graphics — powered by Swift 6 and a 120Hz Metal 2D Signed Distance Field (SDF) + HDR Bloom engine.**
 
 [![License: MIT-0](https://img.shields.io/badge/License-MIT--0-00F5D4.svg)](LICENSE)
 [![Platform: macOS 14+ (Apple Silicon)](https://img.shields.io/badge/Platform-macOS%2014%2B%20(Apple%20Silicon)-FF6AC1.svg)](Package.swift)
