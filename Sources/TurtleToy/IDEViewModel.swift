@@ -15,6 +15,8 @@ public enum ExecutionMode: String, CaseIterable, Identifiable {
 @MainActor
 public final class IDEViewModel: ObservableObject {
     @Published public var selectedPreset: PresetProgram
+    /// Identity + saved baseline of the editor contents (preset, untitled, or a `.turtle` file). See SketchDocumentSupport.swift.
+    @Published public var document: SketchDocumentState = .preset(PresetGallery.all[0])
     @Published public var sourceCode: String {
         didSet {
             if sourceCode != oldValue {
@@ -75,6 +77,7 @@ public final class IDEViewModel: ObservableObject {
         self.renderer = MetalRenderer()
         setupRendererCallbacks()
         compileProgram(resetAnimationIfNeeded: true)
+        restoreLastSession()
 
         if CommandLine.arguments.contains("--auto-crawl") {
             self.playbackSpeed = 1.65
@@ -138,6 +141,7 @@ public final class IDEViewModel: ObservableObject {
 
     public func selectPreset(_ preset: PresetProgram) {
         selectedPreset = preset
+        document = .preset(preset)
         parameterValues.removeAll()
         colorParameterValues.removeAll()
         backdropOverride = nil
@@ -317,7 +321,7 @@ public final class IDEViewModel: ObservableObject {
         let savePanel = NSSavePanel()
         savePanel.title = "Export 4K HDR TurtleToy Artwork"
         savePanel.allowedContentTypes = [.png]
-        let cleanTitle = selectedPreset.title.lowercased().replacingOccurrences(of: " ", with: "_")
+        let cleanTitle = exportBaseName
         savePanel.nameFieldStringValue = "\(cleanTitle)_4k.png"
 
         if savePanel.runModal() == .OK, let url = savePanel.url {

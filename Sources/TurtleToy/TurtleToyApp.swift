@@ -51,6 +51,7 @@ public struct MainIDEView: View {
             .frame(minWidth: 540, maxWidth: .infinity, maxHeight: .infinity)
         }
         .preferredColorScheme(.dark)
+        .modifier(SketchDocumentWindowModifier(viewModel: viewModel))
     }
 
     // MARK: - Subviews
@@ -104,8 +105,8 @@ public struct MainIDEView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 ForEach(PresetGallery.all) { preset in
-                    let isSelected = preset.id == viewModel.selectedPreset.id
-                    Button(action: { viewModel.selectPreset(preset) }) {
+                    let isSelected = preset.id == viewModel.selectedPreset.id && viewModel.document.isPreset
+                    Button(action: { viewModel.requestPreset(preset) }) {
                         HStack(spacing: 7) {
                             Image(systemName: preset.iconName)
                                 .font(.system(size: 12, weight: .bold))
@@ -662,6 +663,7 @@ public struct TurtleToyApp: App {
         }
         .windowStyle(.titleBar)
         .windowToolbarStyle(.unifiedCompact)
+        .commands { SketchFileCommands() }
     }
 }
 
