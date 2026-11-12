@@ -621,7 +621,7 @@ public struct TurtleToyApp: App {
                 renderer.scene = scene
                 renderer.isLiveMode = true
                 let fileURL = outDir.appendingPathComponent("\(preset.id).png")
-                let ok = renderer.exportHighResPNG(to: fileURL, size: 1024)
+                let ok = renderer.exportHighResPNG(to: fileURL, size: 1024, sourceText: preset.code)
                 print("Rendered \(preset.id): \(ok ? "OK" : "FAILED") (\(scene.strokes.count) strokes) -> \(fileURL.path)")
             }
             exit(0)

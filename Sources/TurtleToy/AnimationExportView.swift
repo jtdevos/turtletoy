@@ -122,7 +122,7 @@ public final class AnimationExportController: ObservableObject {
         let savePanel = NSSavePanel()
         savePanel.title = "Export TurtleToy Animation"
         savePanel.allowedContentTypes = [format.contentType]
-        let cleanTitle = viewModel.selectedPreset.title.lowercased().replacingOccurrences(of: " ", with: "_")
+        let cleanTitle = viewModel.exportBaseName
         savePanel.nameFieldStringValue = "\(cleanTitle)_\(mode == .crawl ? "crawl" : "loop").\(format.fileExtension)"
         guard savePanel.runModal() == .OK, let url = savePanel.url else { return }
 

@@ -325,7 +325,7 @@ public final class IDEViewModel: ObservableObject {
         savePanel.nameFieldStringValue = "\(cleanTitle)_4k.png"
 
         if savePanel.runModal() == .OK, let url = savePanel.url {
-            let ok = renderer.exportHighResPNG(to: url, size: 3072)
+            let ok = renderer.exportHighResPNG(to: url, size: 3072, sourceText: sourceCode)
             exportStatusBanner = ok ? "Saved 3072×3072 PNG to \(url.lastPathComponent)" : "Failed to export PNG"
             Task { @MainActor in
                 try? await Task.sleep(nanoseconds: 3_500_000_000)

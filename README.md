@@ -65,6 +65,9 @@
 - **Live 120Hz Mode**: Instant reactive execution as you type, scrub numbers, drag sliders, or animate with the built-in time variable `t`.
 - **Turtle Crawl / Scrubber Mode**: Watch the procedural SDF Cyber-Turtle crawl step-by-step with sub-segment interpolation, speed control (`0.25x` to `30x`), active source-line highlighting in the editor, and an interactive timeline scrubber.
 - **One-Click 4K PNG Export**: Render high-resolution `3072×3072` artwork directly from the offscreen Metal texture.
+- **Animation Export (MP4 / GIF)**: Export a Turtle Crawl or a `t`-driven time loop at up to 1080p, with size, frame rate, and duration options.
+- **Save & Open Sketches**: Plain-text `.turtle` files with **`⌘N`** / **`⌘O`** / **`⌘S`** / **`⇧⌘S`**, unsaved-changes prompts, and last-session restore on launch.
+- **Source Travels With Your Art**: Exported PNG, MP4, and GIF files embed the sketch's source code in their metadata.
 
 ---
 
@@ -94,6 +97,9 @@ swift test
 
 # Headlessly render all 8 showcase presets to PNG via Metal
 swift run -c release TurtleToy --render-showcase ./showcase_renders
+
+# Headlessly export a preset animation (MP4 or GIF, chosen by file extension)
+swift run -c release TurtleToy --export-animation sakura_bonsai_tree ./bonsai.mp4 --mode crawl
 ```
 
 ---

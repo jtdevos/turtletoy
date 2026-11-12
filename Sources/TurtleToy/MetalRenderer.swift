@@ -2,6 +2,8 @@ import Foundation
 import Metal
 import MetalKit
 import AppKit
+import ImageIO
+import UniformTypeIdentifiers
 import simd
 import TurtleToyCore
 
@@ -658,7 +660,9 @@ public final class MetalRenderer: NSObject, MTKViewDelegate {
         return NSImage(cgImage: cgImage, size: NSSize(width: CGFloat(width) / 2.0, height: CGFloat(height) / 2.0))
     }
 
-    public func exportHighResPNG(to url: URL, size: Int = 2048, drawAvatar: Bool = false, explicitTime: Float? = nil) -> Bool {
+    /// `sourceText`, when given, is embedded in the PNG's Description text chunk (with a "TurtleToy" Software tag)
+    /// so the sketch that produced an image can be recovered from it.
+    public func exportHighResPNG(to url: URL, size: Int = 2048, drawAvatar: Bool = false, explicitTime: Float? = nil, sourceText: String? = nil) -> Bool {
         let texDesc = MTLTextureDescriptor.texture2DDescriptor(
             pixelFormat: .bgra8Unorm,
             width: size,
@@ -718,13 +722,24 @@ public final class MetalRenderer: NSObject, MTKViewDelegate {
             return false
         }
 
-        let rep = NSBitmapImageRep(cgImage: cgImage)
-        guard let pngData = rep.representation(using: .png, properties: [:]) else {
+        let pngData = NSMutableData()
+        guard let destination = CGImageDestinationCreateWithData(pngData, UTType.png.identifier as CFString, 1, nil) else {
+            return false
+        }
+        var properties: [CFString: Any] = [:]
+        if let sourceText {
+            properties[kCGImagePropertyPNGDictionary] = [
+                kCGImagePropertyPNGDescription: sourceText,
+                kCGImagePropertyPNGSoftware: "TurtleToy"
+            ] as [CFString: Any]
+        }
+        CGImageDestinationAddImage(destination, cgImage, properties as CFDictionary)
+        guard CGImageDestinationFinalize(destination) else {
             return false
         }
 
         do {
-            try pngData.write(to: url)
+            try (pngData as Data).write(to: url, options: .atomic)
             return true
         } catch {
             return false
