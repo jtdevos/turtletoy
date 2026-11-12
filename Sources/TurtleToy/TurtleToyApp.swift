@@ -671,6 +671,56 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.activate(ignoringOtherApps: true)
 
         let args = CommandLine.arguments
+        if let idx = args.firstIndex(of: "--screencapture-window"), idx + 1 < args.count {
+            let outPath = args[idx + 1]
+            let framesDir: String? = {
+                if let fIdx = args.firstIndex(of: "--screencapture-frames"), fIdx + 1 < args.count {
+                    return args[fIdx + 1]
+                }
+                return nil
+            }()
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                guard let window = NSApp.windows.first(where: { $0.isVisible && $0.frame.width > 400 }) ?? NSApp.windows.first else {
+                    exit(1)
+                }
+                window.setContentSize(NSSize(width: 1420, height: 860))
+                window.center()
+                window.makeKeyAndOrderFront(nil)
+                NSApp.activate(ignoringOtherApps: true)
+                let winID = window.windowNumber
+
+                if let dir = framesDir {
+                    try? FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
+                    Task { @MainActor in
+                        for f in 0..<42 {
+                            let frameFile = (dir as NSString).appendingPathComponent(String(format: "win_%03d.png", f))
+                            let proc = Process()
+                            proc.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
+                            proc.arguments = ["-x", "-o", "-l", "\(winID)", frameFile]
+                            try? proc.run()
+                            proc.waitUntilExit()
+                            if f == 34 {
+                                try? FileManager.default.removeItem(atPath: outPath)
+                                try? FileManager.default.copyItem(atPath: frameFile, toPath: outPath)
+                            }
+                            try? await Task.sleep(nanoseconds: 65_000_000)
+                        }
+                        exit(0)
+                    }
+                } else {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) {
+                        let proc = Process()
+                        proc.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
+                        proc.arguments = ["-x", "-o", "-l", "\(winID)", outPath]
+                        try? proc.run()
+                        proc.waitUntilExit()
+                        exit(0)
+                    }
+                }
+            }
+            return
+        }
         if let idx = args.firstIndex(of: "--capture-ide-screenshot"), idx + 1 < args.count {
             let outPath = args[idx + 1]
             let viewModel = IDEViewModel()

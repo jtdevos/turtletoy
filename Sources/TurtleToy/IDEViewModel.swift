@@ -75,6 +75,11 @@ public final class IDEViewModel: ObservableObject {
         self.renderer = MetalRenderer()
         setupRendererCallbacks()
         compileProgram(resetAnimationIfNeeded: true)
+
+        if CommandLine.arguments.contains("--auto-crawl") {
+            self.playbackSpeed = 1.65
+            self.startAnimatedCrawl()
+        }
     }
 
     private func setupRendererCallbacks() {

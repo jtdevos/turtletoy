@@ -264,6 +264,7 @@ public struct CanvasHUDView: View {
                         .font(.system(size: 11, weight: .medium, design: .monospaced))
                         .foregroundStyle(Color(red: 0.35, green: 0.95, blue: 0.85))
                 }
+                .fixedSize()
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
                 .background(.ultraThinMaterial, in: Capsule())
@@ -276,6 +277,7 @@ public struct CanvasHUDView: View {
                     Toggle(isOn: $viewModel.showTurtleAvatar) {
                         Label("Turtle", systemImage: "tortoise.fill")
                             .font(.system(size: 11, weight: .semibold))
+                            .fixedSize()
                     }
                     .toggleStyle(.button)
                     .controlSize(.small)
@@ -283,6 +285,7 @@ public struct CanvasHUDView: View {
                     Toggle(isOn: $viewModel.showGrid) {
                         Label("Grid", systemImage: "grid")
                             .font(.system(size: 11, weight: .semibold))
+                            .fixedSize()
                     }
                     .toggleStyle(.button)
                     .controlSize(.small)
@@ -323,11 +326,13 @@ public struct CanvasHUDView: View {
                     Button(action: { viewModel.exportHighResArtwork() }) {
                         Label("Export 4K", systemImage: "camera.aperture")
                             .font(.system(size: 11, weight: .bold))
+                            .fixedSize()
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(.purple)
                     .controlSize(.small)
                 }
+                .fixedSize()
                 .padding(.horizontal, 10)
                 .padding(.vertical, 5)
                 .background(.ultraThinMaterial, in: Capsule())
