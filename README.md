@@ -9,6 +9,16 @@
 
 **TurtleToy** reimagines classic Logo turtle graphics for modern Apple Silicon GPUs — with **zero web views or Electron**. Every stroke is rendered analytically as a Signed Distance Field (SDF) capsule in 16-bit floating-point (`RGBA16Float`) HDR space with procedural shader brushes, separable Gaussian bloom, GPU particle bursts, L-systems, kaleidoscopic symmetry, and live 120Hz number scrubbing.
 
+![TurtleToy IDE Live Animated Preview](showcase_renders/ide_preview.gif)
+
+<details>
+<summary><b>📸 View Full-Resolution Retina IDE Screenshot (2720×1680)</b></summary>
+<br>
+
+![TurtleToy Full IDE Screenshot](showcase_renders/ide_screenshot.png)
+
+</details>
+
 ---
 
 ## 🎨 Showcase Gallery (Rendered Directly by TurtleToy's Metal Pipeline)

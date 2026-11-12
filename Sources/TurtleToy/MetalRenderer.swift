@@ -291,6 +291,12 @@ public final class MetalRenderer: NSObject, MTKViewDelegate {
 
     public func resetParticlesTracker() {
         lastProcessedBurstStep = -1
+        particles.removeAll()
+        activeRipples.removeAll()
+    }
+
+    public func stepSimulationForExport(dt: Float) {
+        updateSimulation(dt: dt)
     }
 
     private func updateSimulation(dt: Float) {
@@ -407,7 +413,8 @@ public final class MetalRenderer: NSObject, MTKViewDelegate {
         pixelHeight: Int,
         logicalSize: SIMD2<Float>,
         time: Float,
-        presentDrawable: MTLDrawable? = nil
+        presentDrawable: MTLDrawable? = nil,
+        forceDrawAvatar: Bool = false
     ) {
         ensureOffscreenTextures(width: pixelWidth, height: pixelHeight)
         guard let hdrTex = hdrSceneTexture,
@@ -501,7 +508,7 @@ public final class MetalRenderer: NSObject, MTKViewDelegate {
             }
 
             // 1E. Procedural SDF Cyber-Turtle Avatar(s)
-            if showTurtleAvatar && presentDrawable != nil {
+            if showTurtleAvatar && (presentDrawable != nil || forceDrawAvatar) {
                 enc.setRenderPipelineState(avatarPSO)
                 let pose = interpolatedTurtlePose()
                 var avatarUni = TurtleAvatarUniformsGPU(
@@ -593,7 +600,65 @@ public final class MetalRenderer: NSObject, MTKViewDelegate {
 
     // MARK: - High-Resolution PNG Export (Up to 4K)
 
-    public func exportHighResPNG(to url: URL, size: Int = 2048) -> Bool {
+    public func renderSnapshotImage(width: Int, height: Int, logicalSize: SIMD2<Float>, drawAvatar: Bool = true) -> NSImage? {
+        let texDesc = MTLTextureDescriptor.texture2DDescriptor(
+            pixelFormat: .bgra8Unorm,
+            width: width,
+            height: height,
+            mipmapped: false
+        )
+        texDesc.usage = [.renderTarget, .shaderRead]
+        texDesc.storageMode = .shared
+        guard let outTex = device.makeTexture(descriptor: texDesc) else { return nil }
+
+        renderFrame(
+            targetTexture: outTex,
+            pixelWidth: width,
+            pixelHeight: height,
+            logicalSize: logicalSize,
+            time: Float(CFAbsoluteTimeGetCurrent() - startTimestamp),
+            presentDrawable: nil,
+            forceDrawAvatar: drawAvatar
+        )
+
+        let bytesPerRow = width * 4
+        var rawBytes = [UInt8](repeating: 0, count: bytesPerRow * height)
+        outTex.getBytes(
+            &rawBytes,
+            bytesPerRow: bytesPerRow,
+            from: MTLRegionMake2D(0, 0, width, height),
+            mipmapLevel: 0
+        )
+
+        for i in stride(from: 0, to: rawBytes.count, by: 4) {
+            let b = rawBytes[i]
+            let r = rawBytes[i + 2]
+            rawBytes[i] = r
+            rawBytes[i + 2] = b
+            rawBytes[i + 3] = 255
+        }
+
+        guard let provider = CGDataProvider(data: Data(rawBytes) as CFData),
+              let cgImage = CGImage(
+                width: width,
+                height: height,
+                bitsPerComponent: 8,
+                bitsPerPixel: 32,
+                bytesPerRow: bytesPerRow,
+                space: CGColorSpaceCreateDeviceRGB(),
+                bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue),
+                provider: provider,
+                decode: nil,
+                shouldInterpolate: true,
+                intent: .defaultIntent
+              ) else {
+            return nil
+        }
+
+        return NSImage(cgImage: cgImage, size: NSSize(width: CGFloat(width) / 2.0, height: CGFloat(height) / 2.0))
+    }
+
+    public func exportHighResPNG(to url: URL, size: Int = 2048, drawAvatar: Bool = false, explicitTime: Float? = nil) -> Bool {
         let texDesc = MTLTextureDescriptor.texture2DDescriptor(
             pixelFormat: .bgra8Unorm,
             width: size,
@@ -613,8 +678,9 @@ public final class MetalRenderer: NSObject, MTKViewDelegate {
             pixelWidth: size,
             pixelHeight: size,
             logicalSize: SIMD2<Float>(760.0, 760.0),
-            time: Float(CFAbsoluteTimeGetCurrent() - startTimestamp),
-            presentDrawable: nil
+            time: explicitTime ?? Float(CFAbsoluteTimeGetCurrent() - startTimestamp),
+            presentDrawable: nil,
+            forceDrawAvatar: drawAvatar
         )
 
         let bytesPerRow = size * 4

@@ -92,6 +92,7 @@ public struct MetalCanvasView: NSViewRepresentable {
     public func makeNSView(context: Context) -> InteractiveMTKView {
         let mtkView = InteractiveMTKView(frame: .zero, device: viewModel.renderer?.device)
         mtkView.viewModel = viewModel
+        mtkView.framebufferOnly = false
         viewModel.renderer?.configure(mtkView: mtkView)
         return mtkView
     }
